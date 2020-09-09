@@ -1,115 +1,81 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import { useStateValue } from "../../StateProvider";
-// live api call
-import useGoogleSearch from "../../useGoogleSearch";
+import { actionTypes } from "../../reducer";
 
-// import Response from "../../response";
-import SearchBar from "../SearchBar/SearchBar";
+import { Button } from "@material-ui/core";
 
-import SearchIcon from "@material-ui/icons/Search";
-import DescriptionIcon from "@material-ui/icons/Description";
-import ImageIcon from "@material-ui/icons/Image";
-import LocalOfferIcon from "@material-ui/icons/LocalOffer";
-import RoomIcon from "@material-ui/icons/Room";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import "./_search.scss";
 
-import "./_searchPage.scss";
+const SearchBar = ({ hideButtons = false }) => {
+  const [{}, dispatch] = useStateValue();
 
-const Search = () => {
-  const [{ term }, dispatch] = useStateValue();
+  const [input, setInput] = useState("");
+  const history = useHistory();
 
-  const { data } = useGoogleSearch(term);
+  const search = (e) => {
+    e.preventDefault();
 
-  // mock data
-  // const data = Response;
-  // console.log(data);
+    dispatch({
+      type: actionTypes.SET_SEARCH_TERM,
+      term: input,
+    });
+
+    history.push("/search");
+  };
 
   return (
-    <div className="searchPage">
-      <div className="header">
-        <Link to="/">
-          <img
-            className="image"
-            src="https://i.postimg.cc/j5ZxDtcp/googlebrand.png"
-            alt="google"
-          />
-        </Link>
-        <div className="body">
-          <SearchBar hideButtons />
-          <div className="options">
-            <div className="left">
-              <div className="option">
-                <SearchIcon />
-                <Link to="/all">All</Link>
-              </div>
-              <div className="option">
-                <DescriptionIcon />
-                <Link to="/news">News</Link>
-              </div>
-              <div className="option">
-                <ImageIcon />
-                <Link to="/images">Images</Link>
-              </div>
-              <div className="option">
-                <LocalOfferIcon />
-                <Link to="/shopping">Shopping</Link>
-              </div>
-              <div className="option">
-                <RoomIcon />
-                <Link to="/maps">Maps</Link>
-              </div>
-              <div className="option">
-                <MoreVertIcon />
-                <Link to="/more">More</Link>
-              </div>
-            </div>
-            <div className="right">
-              <div className="option">
-                <Link to="/settings">Settings</Link>
-              </div>
-              <div className="option">
-                <Link to="/tools">Tools</Link>
-              </div>
-            </div>
-          </div>
-        </div>
+    <form className="search">
+      <div className="input">
+        <img
+          className="icon"
+          src="https://i.postimg.cc/LstV1pm4/search.png"
+          alt="search"
+        />
+        <input
+          className="searchbar"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <img
+          className="icon"
+          src="https://i.postimg.cc/jj0X250k/mic.png"
+          alt="mic"
+        />
       </div>
 
-      {term && (
-        <div className="results">
-          <p className="resultCount">
-            About{" "}
-            <strong>{data?.searchInformation.formattedTotalResults}</strong>{" "}
-            results (
-            <strong>{data?.searchInformation.formattedSearchTime}</strong>{" "}
-            seconds) for <strong>{term}</strong>
-          </p>
-          {data?.items.map((item) => (
-            <div className="allResults">
-              <p>
-                {item.pagemap?.cse_image?.length > 0 &&
-                  item.pagemap?.cse_image[0]?.src && (
-                    <img
-                      className="resultImage"
-                      src={item.pagemap?.cse_image[0]?.src}
-                      alt="resultImage"
-                    />
-                  )}
-
-                {item.displayLink}
-              </p>
-              <a href={item.link} className="title" target="blank">
-                <h2>{item.title}</h2>
-              </a>
-              <p className="snippet">{item.snippet}</p>
-            </div>
-          ))}
+      {!hideButtons ? (
+        <div className="buttons">
+          <Button
+            type="submit"
+            onClick={search}
+            className="btn"
+            variant="outlined"
+          >
+            Google Search
+          </Button>
+          <Button className="btn" variant="outlined">
+            I'm Feeling Lucky
+          </Button>
+        </div>
+      ) : (
+        <div className="buttons">
+          <Button
+            type="submit"
+            onClick={search}
+            className="btn hidden"
+            variant="outlined"
+          >
+            Google Search
+          </Button>
+          <Button className="btn hidden" variant="outlined">
+            I'm Feeling Lucky
+          </Button>
         </div>
       )}
-    </div>
+    </form>
   );
 };
 
-export default Search;
+export default SearchBar;
